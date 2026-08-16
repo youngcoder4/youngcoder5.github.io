@@ -1,6 +1,0 @@
-const emailElement = document.querySelector<HTMLParagraphElement>("#verificationEmail");
-const email = new URLSearchParams(window.location.search).get("email");
-
-if (emailElement) {
-  emailElement.textContent = email || "your email address";
-}
