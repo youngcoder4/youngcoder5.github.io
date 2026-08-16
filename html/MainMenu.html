@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudentGPT | Workspace</title>
+    <link rel="stylesheet" href="../bootstrap.css" />
+    <style>
+      :root {
+        --bg: #0d1117;
+        --bg-soft: #111827;
+        --panel: #111827;
+        --panel-strong: #0f172a;
+        --panel-alt: #161f2f;
+        --line: rgba(148, 163, 184, 0.18);
+        --muted: #94a3b8;
+        --text: #e5edf7;
+        --primary: #3b82f6;
+        --primary-strong: #2563eb;
+        --success: #34d399;
+        --warning: #fbbf24;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        height: 100%;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #0b1220 0%, #0d1117 100%);
+        color: var(--text);
+      }
+
+      body {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      a { text-decoration: none; }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr) 320px;
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      .sidebar,
+      .right-panel {
+        background: rgba(10, 15, 22, 0.9);
+        border-right: 1px solid var(--line);
+        padding: 18px 16px;
+      }
+
+      .right-panel {
+        border-right: none;
+        border-left: 1px solid var(--line);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-weight: 700;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #7c3aed, #22c55e);
+        color: #f8fafc;
+        font-weight: 800;
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+      }
+
+      .new-chat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin-top: 18px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: rgba(148, 163, 184, 0.06);
+        color: var(--text);
+        padding: 12px 14px;
+        font-weight: 600;
+      }
+
+      .section-label {
+        margin-top: 26px;
+        margin-bottom: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+
+      .history-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .history-list li {
+        padding: 10px 12px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        color: var(--muted);
+        background: rgba(148, 163, 184, 0.02);
+      }
+
+      .history-list li.active {
+        border-color: rgba(59, 130, 246, 0.4);
+        background: rgba(59, 130, 246, 0.08);
+        color: var(--text);
+      }
+
+      .main-panel {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(13, 17, 23, 0.8);
+      }
+
+      .workspace-name {
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .ghost-btn,
+      .primary-btn,
+      .small-btn {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 16px;
+        color: var(--text);
+        background: rgba(148, 163, 184, 0.07);
+        font-weight: 600;
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+        border: none;
+      }
+
+      .chat-area {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+      }
+
+      .messages {
+        flex: 1;
+        overflow: auto;
+        padding: 28px 28px 12px;
+      }
+
+      .message-row {
+        display: flex;
+        margin-bottom: 18px;
+      }
+
+      .message-row.user {
+        justify-content: flex-end;
+      }
+
+      .bubble {
+        max-width: min(76%, 640px);
+        border-radius: 18px;
+        padding: 14px 16px;
+        line-height: 1.8;
+      }
+
+      .bubble.assistant {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--line);
+        color: var(--text);
+      }
+
+      .bubble.user {
+        background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(30,64,175,0.4));
+        border: 1px solid rgba(96,165,250,0.3);
+      }
+
+      .composer {
+        padding: 18px 22px 22px;
+        border-top: 1px solid var(--line);
+        background: rgba(13, 17, 23, 0.7);
+      }
+
+      .composer-box {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      textarea {
+        resize: none;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        flex: 1;
+        min-height: 56px;
+        max-height: 180px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .composer-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: rgba(52, 211, 153, 0.08);
+        border: 1px solid rgba(52, 211, 153, 0.2);
+        border-radius: 999px;
+        color: #b7f7da;
+        font-weight: 600;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+      }
+
+      .right-panel .card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        margin-bottom: 18px;
+      }
+
+      .card h4 {
+        margin: 0 0 14px;
+        font-size: 1rem;
+      }
+
+      .model-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .model-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--muted);
+      }
+
+      .gateway-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(52, 211, 153, 0.06);
+        border: 1px solid rgba(52, 211, 153, 0.2);
+        color: #d1fae5;
+        font-weight: 600;
+      }
+
+      .tiny {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      @media (max-width: 1180px) {
+        .app-shell {
+          grid-template-columns: 220px minmax(0, 1fr) 260px;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .app-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar,
+        .right-panel {
+          border: none;
+          border-bottom: 1px solid var(--line);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand" aria-label="StudentGPT workspace brand">
+          <span class="brand-mark">S</span>
+          <span>StudentGPT</span>
+        </div>
+
+        <button class="new-chat" type="button">＋ New chat</button>
+
+        <div class="section-label">Recent</div>
+        <ul class="history-list">
+          <li class="active">AI research plan</li>
+          <li>Math help session</li>
+          <li>Code review notes</li>
+          <li>Home server setup</li>
+        </ul>
+      </aside>
+
+      <main class="main-panel">
+        <div class="topbar">
+          <div class="workspace-name">Workspace · StudentGPT</div>
+          <div class="top-actions">
+            <button class="ghost-btn" type="button">Model</button>
+            <button class="primary-btn" type="button" id="logoutButton">Log out</button>
+          </div>
+        </div>
+
+        <div class="chat-area">
+          <div class="messages">
+            <div class="message-row assistant">
+              <div class="bubble assistant">
+                Hello. I am ready to help with internet research, logic, mathematics, coding, documentation, and practical planning tasks.
+              </div>
+            </div>
+
+            <div class="message-row user">
+              <div class="bubble user">
+                Summarize the benefits of using a local AI gateway for a home server and explain how it helps privacy and deployment control.
+              </div>
+            </div>
+
+            <div class="message-row assistant">
+              <div class="bubble assistant">
+                A local AI gateway keeps the model close to your infrastructure, helping preserve privacy, reduce third-party data exposure, and provide predictable performance on your own hardware. It also gives you more control over model updates, deployment rules, and access management.
+              </div>
+            </div>
+          </div>
+
+          <div class="composer">
+            <div class="composer-box">
+              <textarea aria-label="Chat prompt" placeholder="Ask the assistant a question..."></textarea>
+              <button class="primary-btn" type="button">Send</button>
+            </div>
+
+            <div class="composer-actions">
+              <span class="status-pill"><span class="status-dot"></span> Local gateway connected</span>
+              <span>Model: Qwen3-8B-Q4</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="right-panel">
+        <div class="card">
+          <h4>Gateway status</h4>
+          <div class="gateway-status">
+            <span>Connected</span>
+            <span class="status-dot"></span>
+          </div>
+          <p class="tiny" style="margin-top: 12px;">Endpoint: http://home-server.local:11434</p>
+        </div>
+
+        <div class="card">
+          <h4>Available models</h4>
+          <ul class="model-list">
+            <li><span>Qwen3-8B-Q4</span><span>✓</span></li>
+            <li><span>DeepSeek Coder</span><span>Cold</span></li>
+            <li><span>Gemma 7B</span><span>Cold</span></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Quick actions</h4>
+          <ul class="model-list">
+            <li><span>Research mode</span><span>↗</span></li>
+            <li><span>Math mode</span><span>∑</span></li>
+            <li><span>Code review</span><span>⌘</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <script type="module" src="../javascript/main-menu.js"></script>
+  </body>
+</html>
